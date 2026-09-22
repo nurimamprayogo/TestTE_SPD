@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tes Teknisi Speedometer</title>
+  <style>
+    * { box-sizing: border-box; }
+    :root{
+      --bg:#0f172a;
+      --card:#111827;
+      --card2:#1f2937;
+      --text:#f8fafc;
+      --muted:#94a3b8;
+      --primary:#22c55e;
+      --primary2:#16a34a;
+      --danger:#ef4444;
+      --warning:#f59e0b;
+      --border:#334155;
+      --white:#fff;
+    }
+    body{
+      margin:0;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:linear-gradient(135deg,#0f172a,#111827 60%,#172554);
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+    }
+    .container{
+      width:100%;
+      max-width:760px;
+    }
+    .brand{
+      text-align:center;
+      margin-bottom:18px;
+    }
+    .brand h1{
+      margin:0 0 6px;
+      font-size:clamp(26px,5vw,38px);
+    }
+    .brand p{
+      margin:0;
+      color:var(--muted);
+    }
+    .card{
+      background:rgba(17,24,39,.96);
+      border:1px solid var(--border);
+      border-radius:20px;
+      padding:24px;
+      box-shadow:0 20px 60px rgba(0,0,0,.35);
+    }
+    .hidden{display:none !important;}
+    .label{
+      display:block;
+      margin-bottom:8px;
+      font-weight:700;
+    }
+    input[type="text"]{
+      width:100%;
+      padding:14px 16px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:#0b1220;
+      color:var(--white);
+      outline:none;
+      font-size:16px;
+    }
+    input[type="text"]:focus{
+      border-color:#38bdf8;
+      box-shadow:0 0 0 3px rgba(56,189,248,.15);
+    }
+    .info-box{
+      margin-top:18px;
+      padding:14px 16px;
+      border-radius:12px;
+      background:#0b1220;
+      border:1px solid var(--border);
+      color:#cbd5e1;
+      line-height:1.65;
+      font-size:14px;
+    }
+    .info-box strong{color:#fff;}
+    button{
+      border:none;
+      border-radius:12px;
+      padding:13px 18px;
+      font-size:15px;
+      font-weight:800;
+      cursor:pointer;
+      transition:.2s ease;
+    }
+    button:hover{transform:translateY(-1px);}
+    button:disabled{
+      opacity:.45;
+      cursor:not-allowed;
+      transform:none;
+    }
+    .btn-primary{
+      background:var(--primary);
+      color:#052e16;
+    }
+    .btn-primary:hover{background:var(--primary2);color:white;}
+    .btn-secondary{
+      background:#334155;
+      color:white;
+    }
+    .btn-danger{
+      background:var(--danger);
+      color:white;
+    }
+    .full{width:100%; margin-top:18px;}
+    .topbar{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:18px;
+      flex-wrap:wrap;
+    }
+    .candidate{
+      color:#cbd5e1;
+      font-size:14px;
+    }
+    .timer{
+      font-weight:900;
+      font-size:18px;
+      padding:9px 13px;
+      border-radius:10px;
+      background:#0b1220;
+      border:1px solid var(--border);
+      min-width:120px;
+      text-align:center;
+    }
+    .timer.warning{
+      color:#fbbf24;
+      border-color:#92400e;
+    }
+    .timer.danger{
+      color:#fecaca;
+      border-color:#991b1b;
+      background:#450a0a;
+    }
+    .progress-wrap{
+      height:9px;
+      background:#0b1220;
+      border-radius:99px;
+      overflow:hidden;
+      margin-bottom:18px;
+    }
+    .progress{
+      height:100%;
+      width:0;
+      background:linear-gradient(90deg,#22c55e,#38bdf8);
+      transition:width .25s ease;
+    }
+    .question-meta{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      color:var(--muted);
+      font-size:14px;
+      margin-bottom:10px;
+    }
+    .question{
+      font-size:21px;
+      line-height:1.5;
+      font-weight:800;
+      margin:0 0 18px;
+    }
+    .options{
+      display:grid;
+      gap:11px;
+    }
+    .option{
+      border:1px solid var(--border);
+      border-radius:13px;
+      padding:14px 15px;
+      background:#0b1220;
+      cursor:pointer;
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      transition:.18s ease;
+    }
+    .option:hover{
+      border-color:#64748b;
+      background:#111c2f;
+    }
+    .option.selected{
+      border-color:#22c55e;
+      background:rgba(34,197,94,.11);
+    }
+    .option input{
+      margin-top:3px;
+      accent-color:#22c55e;
+    }
+    .option-letter{
+      font-weight:900;
+      min-width:22px;
+    }
+    .nav{
+      display:flex;
+      gap:10px;
+      margin-top:22px;
+      justify-content:space-between;
+    }
+    .nav-right{
+      display:flex;
+      gap:10px;
+      margin-left:auto;
+    }
+    .deadline-alert{
+      padding:16px;
+      background:#450a0a;
+      border:1px solid #991b1b;
+      color:#fee2e2;
+      border-radius:12px;
+      line-height:1.6;
+    }
+    .result{
+      text-align:center;
+    }
+    .score-circle{
+      width:160px;
+      height:160px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      margin:20px auto;
+      background:conic-gradient(#22c55e var(--score-angle), #1e293b 0);
+      position:relative;
+    }
+    .score-circle::after{
+      content:"";
+      position:absolute;
+      width:124px;
+      height:124px;
+      border-radius:50%;
+      background:#111827;
+    }
+    .score-text{
+      position:relative;
+      z-index:1;
+      font-size:38px;
+      font-weight:900;
+    }
+    .result-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+      margin-top:18px;
+    }
+    .stat{
+      padding:14px 10px;
+      background:#0b1220;
+      border:1px solid var(--border);
+      border-radius:12px;
+    }
+    .stat b{
+      display:block;
+      font-size:22px;
+      margin-bottom:4px;
+    }
+    .stat span{
+      color:var(--muted);
+      font-size:13px;
+    }
+    .small{
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.6;
+    }
+    .footer{
+      text-align:center;
+      color:#64748b;
+      margin-top:14px;
+      font-size:12px;
+    }
+
+    .modal-backdrop{
+      position:fixed;
+      inset:0;
+      background:rgba(2,6,23,.78);
+      backdrop-filter:blur(6px);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      z-index:9999;
+    }
+    .modal-backdrop.hidden{display:none !important;}
+    .modal-box{
+      width:min(92vw,460px);
+      background:#111827;
+      border:1px solid #475569;
+      border-radius:22px;
+      box-shadow:0 30px 90px rgba(0,0,0,.6);
+      padding:26px;
+      text-align:center;
+      animation:modalIn .18s ease-out;
+    }
+    @keyframes modalIn{
+      from{opacity:0;transform:scale(.94) translateY(10px);}
+      to{opacity:1;transform:scale(1) translateY(0);}
+    }
+    .modal-icon{
+      width:64px;
+      height:64px;
+      margin:0 auto 16px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      background:rgba(34,197,94,.14);
+      border:1px solid rgba(34,197,94,.45);
+      font-size:30px;
+    }
+    .modal-box h3{
+      margin:0 0 10px;
+      font-size:24px;
+      color:#fff;
+    }
+    .modal-box p{
+      margin:0;
+      color:#cbd5e1;
+      line-height:1.65;
+      font-size:15px;
+    }
+    .modal-warning{
+      margin-top:14px;
+      padding:12px 14px;
+      border-radius:12px;
+      background:#0b1220;
+      border:1px solid #334155;
+      color:#e2e8f0;
+      font-size:14px;
+      line-height:1.55;
+    }
+    .modal-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      margin-top:22px;
+    }
+    .modal-actions button{
+      min-height:48px;
+      font-size:15px;
+    }
+    .btn-result{
+      background:#22c55e;
+      color:#052e16;
+      box-shadow:0 8px 24px rgba(34,197,94,.22);
+    }
+    .btn-result:hover{
+      background:#16a34a;
+      color:#fff;
+    }
+
+
+    .answer-key-header{
+      margin-bottom:18px;padding:16px;border-radius:14px;
+      background:rgba(34,197,94,.10);border:1px solid rgba(34,197,94,.35);
+      color:#dcfce7;line-height:1.6;
+    }
+    .answer-list{display:grid;gap:16px;}
+    .answer-item{
+      background:#0b1220;border:1px solid var(--border);
+      border-radius:16px;padding:18px;
+    }
+    .answer-number{
+      display:inline-flex;align-items:center;justify-content:center;
+      min-width:34px;height:34px;padding:0 10px;border-radius:10px;
+      background:#1e293b;color:#e2e8f0;font-weight:900;margin-bottom:12px;
+    }
+    .answer-question{
+      font-size:17px;line-height:1.55;font-weight:800;color:#fff;margin-bottom:14px;
+    }
+    .answer-options{display:grid;gap:8px;}
+    .answer-option{
+      padding:10px 12px;border-radius:10px;border:1px solid #334155;
+      color:#cbd5e1;background:#111827;line-height:1.5;
+    }
+    .answer-option.correct{
+      border-color:#22c55e;background:rgba(34,197,94,.13);
+      color:#dcfce7;font-weight:800;
+    }
+    .answer-badge{
+      display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;
+      background:#22c55e;color:#052e16;font-size:11px;font-weight:900;
+      vertical-align:middle;
+    }
+    .answer-key-title{margin:0 0 8px;font-size:24px;}
+    .answer-key-subtitle{margin:0;color:#cbd5e1;line-height:1.6;}
+
+    @media(max-width:560px){
+      body{padding:12px;}
+      .card{padding:18px;}
+      .result-grid{grid-template-columns:1fr;}
+      .question{font-size:18px;}
+      .nav{flex-direction:column;}
+      .nav-right{width:100%;margin-left:0;}
+      .nav-right button{flex:1;}
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="brand">
+    <h1>Tes Teknisi Speedometer</h1>
+    <p>Pengukuran, komponen elektronika, sensor, dan troubleshooting speedometer</p>
+  </div>
+
+  <!-- HALAMAN AWAL -->
+  <section id="startScreen" class="card">
+    <label class="label" for="participantName">Nama Teknisi</label>
+    <input id="participantName" type="text" autocomplete="name" placeholder="Masukkan nama lengkap" maxlength="80" />
+
+    <div class="info-box">
+      <div>Jumlah soal: <strong id="infoQuestionCount">-</strong></div>
+      <div>Waktu pengerjaan: <strong id="infoDuration">-</strong></div>
+      <div>Batas terakhir pengerjaan: <strong id="infoDeadline">-</strong></div>
+      <div style="margin-top:8px;">Soal dan pilihan jawaban akan diacak untuk setiap peserta. Timer dimulai setelah tombol <strong>Mulai Tes</strong> ditekan.</div>
+    </div>
+
+    <div id="deadlineMessage" class="deadline-alert hidden" style="margin-top:16px;"></div>
+
+    <button id="startBtn" class="btn-primary full">Mulai Tes</button>
+  </section>
+
+  <!-- HALAMAN TES -->
+  <section id="quizScreen" class="card hidden">
+    <div class="topbar">
+      <div class="candidate">
+        Peserta: <strong id="candidateName">-</strong>
+      </div>
+      <div id="timer" class="timer">00:00</div>
+    </div>
+
+    <div class="progress-wrap">
+      <div id="progress" class="progress"></div>
+    </div>
+
+    <div class="question-meta">
+      <span id="questionNumber">Soal 1/1</span>
+      <span id="answeredCount">Terjawab 0</span>
+    </div>
+
+    <h2 id="questionText" class="question"></h2>
+    <div id="options" class="options"></div>
+
+    <div class="nav">
+      <button id="prevBtn" class="btn-secondary">← Sebelumnya</button>
+      <div class="nav-right">
+        <button id="nextBtn" class="btn-primary">Berikutnya →</button>
+        <button id="finishBtn" class="btn-danger hidden">Selesai & Lihat Nilai</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- HASIL -->
+  <section id="resultScreen" class="card hidden result">
+    <h2 style="margin-top:0;">Hasil Tes</h2>
+    <p id="resultName" style="color:#cbd5e1;"></p>
+
+    <div id="scoreCircle" class="score-circle" style="--score-angle:0deg;">
+      <div id="scoreText" class="score-text">0</div>
+    </div>
+
+    <div id="resultStatus" style="font-weight:900;font-size:20px;"></div>
+
+    <div class="result-grid">
+      <div class="stat"><b id="correctStat">0</b><span>Benar</span></div>
+      <div class="stat"><b id="wrongStat">0</b><span>Salah</span></div>
+      <div class="stat"><b id="unansweredStat">0</b><span>Tidak dijawab</span></div>
+    </div>
+
+    <p id="resultTime" class="small" style="margin-top:18px;"></p>
+    <p class="small">Nilai dihitung otomatis dari jawaban yang dikirim. Kunci jawaban tidak ditampilkan agar soal tidak mudah dibagikan ke peserta berikutnya.</p>
+
+    <button id="resetTestBtn" class="btn-secondary full" type="button">
+      Ulangi Tes di Browser Ini
+    </button>
+  </section>
+
+
+  <!-- KUNCI JAWABAN SETELAH DEADLINE -->
+  <section id="answerKeyScreen" class="card hidden">
+    <div class="answer-key-header">
+      <h2 class="answer-key-title">Kunci Jawaban Tes Teknisi Speedometer</h2>
+      <p class="answer-key-subtitle">
+        Masa pengerjaan tes telah berakhir. Seluruh soal dan jawaban yang benar sekarang dapat dipelajari.
+      </p>
+    </div>
+    <div id="answerKeyList" class="answer-list"></div>
+  </section>
+
+  <div class="footer">Tes Teknisi Speedometer • Sistem ujian berbasis browser</div>
+
+  <!-- MODAL KONFIRMASI HASIL -->
+  <div id="resultConfirmModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="resultConfirmTitle">
+    <div class="modal-box">
+      <div class="modal-icon">✓</div>
+      <h3 id="resultConfirmTitle">Lihat Hasil Tes?</h3>
+      <p id="resultConfirmText">Pastikan semua jawaban sudah sesuai sebelum menyelesaikan tes.</p>
+      <div id="resultConfirmWarning" class="modal-warning hidden"></div>
+      <div class="modal-actions">
+        <button id="cancelResultBtn" class="btn-secondary" type="button">Batal</button>
+        <button id="confirmResultBtn" class="btn-result" type="button">Lihat Hasil</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   KONFIGURASI ADMIN
+   Ubah bagian ini sesuai kebutuhan.
+   ============================================================ */
+const CONFIG = {
+  // Jumlah soal yang diberikan ke setiap peserta dari seluruh bank soal.
+  questionsPerTest: 10,
+
+  // Durasi maksimum sejak peserta menekan tombol Mulai Tes.
+  durationMinutes: 10,
+
+  // Format: YYYY-MM-DDTHH:mm:ss
+  deadline: "2026-09-22T23:59:00+07:00",
+
+  // Nilai minimum kelulusan.
+  passingScore: 60,
+
+  // true = urutan pilihan jawaban ikut diacak.
+  shuffleOptions: true,
+
+  // Menyimpan sesi agar refresh tidak mengulang waktu/soal.
+  useLocalStorage: true,
+
+  // Ganti ID jika membuat periode tes baru.
+  testId: "teknisi-speedometer-part1",
+
+  // Naikkan nilai ini setiap membuat revisi/versi tes baru.
+  // Dengan begitu browser tidak memakai sesi dari file versi lama.
+  sessionVersion: "2026-09-21-v1"
+};
+
+/* ============================================================
+   BANK SOAL
+   Tambahkan/edit soal di sini.
+   correct adalah index jawaban benar sebelum opsi diacak.
+   ============================================================ */
+const QUESTION_BANK = [
+  {
+    question: "Bagaimana speedometer bisa mengetahui nilai RPM dengan pembacaan signal biasa?",
+    options: ["Signal RPM masuk speedometer disearahkan kemudian diturunkan tegangannya baru dibaca nilai frekuensi oleh prosesor", "Signal RPM masuk speedometer disearahkan kemudian diturunkan tegangannya baru dibaca nilai tegangan oleh prosesor", "Signal RPM masuk speedometer disearahkan kemudian diturunkan tegangannya baru dibaca nilai arus oleh prosesor", "Signal RPM masuk speedometer disearahkan kemudian diturunkan tegangannya baru dibaca arus dan tegangannya oleh prosesor"],
+    correct: 0
+  },
+  {
+    question: "Bagaimana perbedaan cara kerja speed sensor pada motor dan mobil?",
+    options: ["Sama sama membaca frekuensi", "Motor membaca tegangan, sedangkan mobil membaca frekuensi karena lebih tinggi teknologinya", "Sama sama membaca membaca tegangan", "Motor membaca arus, sedangkan mobil membaca tegangan"],
+    correct: 0
+  },
+  {
+    question: "Untuk mengukur arus konsumsi sebuah speedometer di meja kerja, multimeter harus dipasang...",
+    options: ["Seri dengan jalur supply", "Paralel terhadap supply", "Antara ground dan ground", "Langsung pada kedua terminal yang diukur"],
+    correct: 0
+  },
+  {
+    question: "Bagaimana speedometer bisa membaca nilai kapasitas BBM?",
+    options: ["Dari resistor pullup pada speedometer dan sensor BBM ke GND menghasilkan perbedaan tegangan yang dibaca oleh prosesor", "Prosesor membaca perbandingan tegangan dan arus yang dihasilkan oleh pelampung BBM sendiri",  "Prosesor membaca nilai resistansi dan arus dari pelampung BBM", "Benar semua"],
+    correct: 0
+  },
+  {
+    question: "Bagaimana cara kerja sebuah alat yang bernama kalibrator speed/rpm?",
+    options: ["Kalibrator membaca signal kemudian mengolah dan menghasilkan signal dengan perbandingan yang tepat", "Kalibrator membaca signal kemudian meneruskan ke prosesor speedometer agar lebih kuat", "Kalibrator membaca gelombang speed dan rpm kemudian dibandingkan dan dikeluarkan ke prosesor", "Kalibrator mengolah tegangan dan meneruskan ke prosesor"],
+    correct: 0
+  },
+  {
+    question: "Bagaimana perbedaan motor penggerak jarum dengan 2 pin, 3 pin dan 4 pin?",
+    options: ["2-pin adalah kumparan analog/galvanometer, 3-pin adalah motor air-core dengan jalur ground/sin-cos bersama, dan 4-pin adalah motor stepper bipolar", "2-pin menggunakan koneksi seri, 3-pin menggunakan koneksi paralel, dan 4-pin menggunakan koneksi matriks digital", "2-pin khusus untuk indikator bensin, 3-pin khusus untuk speedometer digital, dan 4-pin khusus untuk odometer mekanis", "2-pin bekerja dengan sinyal analog, 3-pin dengan sinyal frekuensi AC, dan 4-pin dengan tegangan DC murni tanpa driver"],
+    correct: 0
+  },
+  {
+    question: "Bagaimana cara anda mengetahui jenis signal RPM positif/negatif/double pada keluaran mesin motor jika tidak ada osiloskop?",
+    options: ["Menggunakan Multimeter Digital pada mode VDC dan VAC untuk mengamati perubahan rata-rata tegangan, atau menggunakan rangkaian dua LED dan resistor", "Mengukur nilai hambatan (Ohm) pada jalur sinyal tersebut saat mesin menyala; sinyal positif akan menunjukkan resistansi naik, sedangkan sinyal negatif resistansinya turun", "Menggunakan Multimeter Analog pada skala DC Ampere (mA) yang dihubungkan secara seri pada kabel busi untuk melihat bentuk gelombang pengapian", "Menggunakan Test Lamp (bohlam filamen) dengan menghubungkannya langsung ke semua jalur sinyal, karena bohlam dapat berkedip mengikuti frekuensi sinyal positif maupun negatif"],
+    correct: 0
+  },
+  {
+    question: "Bagaimana cara mengetahui prosesor short?",
+    options: ["Menggunakan Multimeter mode kontinuitas/resistansi pada saat tidak ada arus listrik (OFF), lalu mengukur jalur suplai tegangan prosesor terhadap jalur Ground; jika terbaca nilai sangat rendah mendekati 0 Ohm", "Mengukur frekuensi pin osilator kristal (crystal oscillator) menggunakan osiloskop saat menyala; jika tidak ada gelombang yang muncul, hal tersebut mutlak memastikan bahwa prosesor short", "Memeriksa tegangan pada pin output motor stepper jarum; jika semuanya bernilai 0V DC, berarti prosesor dipastikan mengalami korsleting internal", "Menyuntikkan tegangan 12V secara langsung ke pin prosesor dan meraba apakah bodi IC menjadi sangat panas berarti short"],
+    correct: 0
+  },
+  {
+    question: "Mengapa jarum indikator BBM dibuat bergerak lebih lambat dan tidak langsung mengikuti perubahan pembacaan seperti indikator suhu",
+    options: ["Agar jarum BBM tidak mudah bergerak akibat guncangan dan perubahan permukaan bensin" , "Agar jarum BBM lebih cepat merespons perubahan level bensin" , "Agar konsumsi listrik speedometer lebih besar", "Agar pembacaan BBM lebih sensitif terhadap gerakan kendaraan"],
+    correct: 0
+  },
+  {
+    question: "LCD menyala dan backlight normal, tetapi tampilan konten tidak terlalu jelas dan background sedikit lebih gelap setelah polarizer diganti. Penyebab paling mungkin adalah..",
+    options: ["Sudut Polarizer tidak sesuai", "Konslet jalur LCD", "Jalur GND putus", "Tegangan Backlight terlalu tinggi"],
+    correct: 0
+  },
+];
+
+/* ============================================================
+   LOGIKA APLIKASI
+   ============================================================ */
+const $ = (id) => document.getElementById(id);
+const FILE_INSTANCE_KEY = (location.pathname.split("/").pop() || "quiz")
+  .replace(/[^a-zA-Z0-9_-]/g, "_");
+
+const STORAGE_KEY =
+  "quiz_session_" +
+  CONFIG.testId +
+  "_" +
+  CONFIG.sessionVersion +
+  "_" +
+  FILE_INSTANCE_KEY;
+
+let questions = [];
+let answers = [];
+let currentIndex = 0;
+let participantName = "";
+let startTimestamp = null;
+let endTimestamp = null;
+let timerInterval = null;
+let submitted = false;
+
+function shuffleArray(array) {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function buildRandomQuestions() {
+  const selectedQuestions = shuffleArray(QUESTION_BANK)
+    .slice(0, Math.min(CONFIG.questionsPerTest, QUESTION_BANK.length));
+
+  return selectedQuestions.map((q) => {
+    const optionObjects = q.options.map((text, index) => ({
+      text,
+      isCorrect: index === q.correct
+    }));
+
+    const finalOptions = CONFIG.shuffleOptions
+      ? shuffleArray(optionObjects)
+      : optionObjects;
+
+    return {
+      question: q.question,
+      options: finalOptions
+    };
+  });
+}
+
+function formatDeadline() {
+  const date = new Date(CONFIG.deadline);
+  return new Intl.DateTimeFormat("id-ID", {
+    dateStyle: "full",
+    timeStyle: "short",
+    timeZone: "Asia/Jakarta"
+  }).format(date) + " WIB";
+}
+
+function now() {
+  return Date.now();
+}
+
+function isDeadlinePassed() {
+  return now() >= new Date(CONFIG.deadline).getTime();
+}
+
+function getHardEndTimestamp() {
+  const durationEnd = startTimestamp + CONFIG.durationMinutes * 60 * 1000;
+  const globalDeadline = new Date(CONFIG.deadline).getTime();
+  return Math.min(durationEnd, globalDeadline);
+}
+
+function saveSession() {
+  if (!CONFIG.useLocalStorage) return;
+  const data = {
+    participantName,
+    questions,
+    answers,
+    currentIndex,
+    startTimestamp,
+    submitted
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function loadSession() {
+  if (!CONFIG.useLocalStorage) return false;
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return false;
+
+  try {
+    const data = JSON.parse(raw);
+    if (!data || !data.startTimestamp || !Array.isArray(data.questions)) return false;
+
+    participantName = data.participantName || "";
+    questions = data.questions;
+    answers = Array.isArray(data.answers) ? data.answers : Array(questions.length).fill(null);
+    currentIndex = Number.isInteger(data.currentIndex) ? data.currentIndex : 0;
+    startTimestamp = data.startTimestamp;
+    submitted = !!data.submitted;
+
+    if (submitted) {
+      showResult();
+      return true;
+    }
+
+    if (now() >= getHardEndTimestamp()) {
+      submitQuiz(true);
+      return true;
+    }
+
+    showQuiz();
+    return true;
+  } catch (e) {
+    console.error(e);
+    return false;
+  }
+}
+
+function clearSession() {
+  if (CONFIG.useLocalStorage) localStorage.removeItem(STORAGE_KEY);
+}
+
+
+function showAnswerKey() {
+  $("startScreen").classList.add("hidden");
+  $("quizScreen").classList.add("hidden");
+  $("resultScreen").classList.add("hidden");
+  $("resultConfirmModal").classList.add("hidden");
+  $("answerKeyScreen").classList.remove("hidden");
+
+  const list = $("answerKeyList");
+  list.innerHTML = "";
+
+  QUESTION_BANK.forEach((q, questionIndex) => {
+    const item = document.createElement("div");
+    item.className = "answer-item";
+
+    const optionsHtml = q.options.map((option, optionIndex) => {
+      const isCorrect = optionIndex === q.correct;
+      const letter = String.fromCharCode(65 + optionIndex);
+      return `
+        <div class="answer-option ${isCorrect ? "correct" : ""}">
+          <strong>${letter}.</strong> ${escapeHtml(option)}
+          ${isCorrect ? '<span class="answer-badge">JAWABAN BENAR</span>' : ''}
+        </div>
+      `;
+    }).join("");
+
+    item.innerHTML = `
+      <div class="answer-number">Soal ${questionIndex + 1}</div>
+      <div class="answer-question">${escapeHtml(q.question)}</div>
+      <div class="answer-options">${optionsHtml}</div>
+    `;
+
+    list.appendChild(item);
+  });
+}
+
+function init() {
+  $("infoQuestionCount").textContent = CONFIG.questionsPerTest + " soal acak dari " + QUESTION_BANK.length + " soal";
+  $("infoDuration").textContent = CONFIG.durationMinutes + " menit";
+  $("infoDeadline").textContent = formatDeadline();
+
+  if (isDeadlinePassed()) {
+    clearInterval(timerInterval);
+    showAnswerKey();
+    return;
+  }
+
+  loadSession();
+}
+
+function startQuiz() {
+  const name = $("participantName").value.trim();
+
+  if (name.length < 3) {
+    alert("Silakan isi nama lengkap terlebih dahulu.");
+    $("participantName").focus();
+    return;
+  }
+
+  if (isDeadlinePassed()) {
+    showAnswerKey();
+    return;
+  }
+
+  participantName = name;
+  questions = buildRandomQuestions();
+  answers = Array(questions.length).fill(null);
+  currentIndex = 0;
+  startTimestamp = now();
+  submitted = false;
+
+  saveSession();
+  showQuiz();
+}
+
+function showQuiz() {
+  $("startScreen").classList.add("hidden");
+  $("resultScreen").classList.add("hidden");
+  $("quizScreen").classList.remove("hidden");
+  $("candidateName").textContent = participantName;
+
+  renderQuestion();
+  startTimer();
+}
+
+function renderQuestion() {
+  const q = questions[currentIndex];
+  if (!q) return;
+
+  $("questionNumber").textContent = `Soal ${currentIndex + 1}/${questions.length}`;
+  $("questionText").textContent = q.question;
+  $("progress").style.width = `${((currentIndex + 1) / questions.length) * 100}%`;
+
+  const answered = answers.filter(v => v !== null).length;
+  $("answeredCount").textContent = `Terjawab ${answered}/${questions.length}`;
+
+  const container = $("options");
+  container.innerHTML = "";
+
+  q.options.forEach((option, idx) => {
+    const label = document.createElement("label");
+    label.className = "option" + (answers[currentIndex] === idx ? " selected" : "");
+    label.innerHTML = `
+      <input type="radio" name="answer" value="${idx}" ${answers[currentIndex] === idx ? "checked" : ""}>
+      <span class="option-letter">${String.fromCharCode(65 + idx)}.</span>
+      <span>${escapeHtml(option.text)}</span>
+    `;
+
+    label.addEventListener("click", () => {
+      answers[currentIndex] = idx;
+      saveSession();
+      renderQuestion();
+    });
+
+    container.appendChild(label);
+  });
+
+  $("prevBtn").disabled = currentIndex === 0;
+
+  const isLast = currentIndex === questions.length - 1;
+  $("nextBtn").classList.toggle("hidden", isLast);
+  $("finishBtn").classList.toggle("hidden", !isLast);
+
+  saveSession();
+}
+
+function nextQuestion() {
+  if (answers[currentIndex] === null) {
+    alert("Pilih salah satu jawaban terlebih dahulu.");
+    return;
+  }
+  if (currentIndex < questions.length - 1) {
+    currentIndex++;
+    renderQuestion();
+  }
+}
+
+function prevQuestion() {
+  if (currentIndex > 0) {
+    currentIndex--;
+    renderQuestion();
+  }
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+
+  const update = () => {
+    const remaining = Math.max(0, getHardEndTimestamp() - now());
+
+    if (remaining <= 0) {
+      clearInterval(timerInterval);
+      $("timer").textContent = "00:00";
+      submitQuiz(true);
+      return;
+    }
+
+    const totalSeconds = Math.ceil(remaining / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+
+    $("timer").textContent =
+      String(minutes).padStart(2, "0") + ":" +
+      String(seconds).padStart(2, "0");
+
+    $("timer").classList.toggle("warning", totalSeconds <= 300 && totalSeconds > 60);
+    $("timer").classList.toggle("danger", totalSeconds <= 60);
+  };
+
+  update();
+  timerInterval = setInterval(update, 1000);
+}
+
+function submitQuiz(auto = false) {
+  if (submitted) return;
+
+  if (!auto) {
+    openResultConfirmModal();
+    return;
+  }
+
+  finalizeSubmit(true);
+}
+
+function openResultConfirmModal() {
+  const unanswered = answers.filter(v => v === null).length;
+
+  $("resultConfirmText").textContent =
+    "Setelah hasil ditampilkan, jawaban tidak dapat diubah lagi.";
+
+  if (unanswered > 0) {
+    $("resultConfirmWarning").classList.remove("hidden");
+    $("resultConfirmWarning").innerHTML =
+      `<strong>Perhatian:</strong> masih ada ${unanswered} soal yang belum dijawab.`;
+  } else {
+    $("resultConfirmWarning").classList.add("hidden");
+    $("resultConfirmWarning").innerHTML = "";
+  }
+
+  $("resultConfirmModal").classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+
+function closeResultConfirmModal() {
+  $("resultConfirmModal").classList.add("hidden");
+  document.body.style.overflow = "";
+}
+
+function finalizeSubmit(auto = false) {
+  if (submitted) return;
+
+  submitted = true;
+  endTimestamp = now();
+  clearInterval(timerInterval);
+  closeResultConfirmModal();
+  saveSession();
+  showResult(auto);
+}
+
+function calculateResult() {
+  let correct = 0;
+  let wrong = 0;
+  let unanswered = 0;
+
+  questions.forEach((q, idx) => {
+    const selected = answers[idx];
+    if (selected === null || selected === undefined) {
+      unanswered++;
+    } else if (q.options[selected] && q.options[selected].isCorrect) {
+      correct++;
+    } else {
+      wrong++;
+    }
+  });
+
+  const score = Math.round((correct / questions.length) * 100);
+  return { correct, wrong, unanswered, score };
+}
+
+function showResult(auto = false) {
+  $("startScreen").classList.add("hidden");
+  $("quizScreen").classList.add("hidden");
+  $("resultScreen").classList.remove("hidden");
+
+  const result = calculateResult();
+
+  $("resultName").textContent = `Nama: ${participantName}`;
+  $("scoreText").textContent = result.score;
+  $("scoreCircle").style.setProperty("--score-angle", `${result.score * 3.6}deg`);
+
+  $("correctStat").textContent = result.correct;
+  $("wrongStat").textContent = result.wrong;
+  $("unansweredStat").textContent = result.unanswered;
+
+  const passed = result.score >= CONFIG.passingScore;
+  $("resultStatus").textContent = passed ? "LULUS" : "BELUM LULUS";
+  $("resultStatus").style.color = passed ? "#4ade80" : "#f87171";
+
+  const endedAt = endTimestamp || now();
+  const elapsedMs = Math.max(0, endedAt - startTimestamp);
+  const elapsedMin = Math.floor(elapsedMs / 60000);
+  const elapsedSec = Math.floor((elapsedMs % 60000) / 1000);
+
+  $("resultTime").textContent =
+    `${auto ? "Tes dikirim otomatis karena waktu habis. " : ""}` +
+    `Waktu pengerjaan: ${elapsedMin} menit ${elapsedSec} detik.`;
+
+  saveSession();
+}
+
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+$("startBtn").addEventListener("click", startQuiz);
+$("nextBtn").addEventListener("click", nextQuestion);
+$("prevBtn").addEventListener("click", prevQuestion);
+$("finishBtn").addEventListener("click", () => submitQuiz(false));
+
+$("cancelResultBtn").addEventListener("click", closeResultConfirmModal);
+$("confirmResultBtn").addEventListener("click", () => finalizeSubmit(false));
+
+$("resultConfirmModal").addEventListener("click", (e) => {
+  if (e.target === $("resultConfirmModal")) closeResultConfirmModal();
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !$("resultConfirmModal").classList.contains("hidden")) {
+    closeResultConfirmModal();
+  }
+});
+
+$("participantName").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") startQuiz();
+});
+
+window.addEventListener("beforeunload", saveSession);
+
+
+$("resetTestBtn").addEventListener("click", () => {
+  if (!confirm("Hapus sesi tes pada file ini dan mulai dari awal?")) return;
+
+  clearSession();
+  participantName = "";
+  questions = [];
+  answers = [];
+  currentIndex = 0;
+  startTimestamp = null;
+  endTimestamp = null;
+  submitted = false;
+
+  location.reload();
+});
+
+init();
+</script>
+</body>
+</html>
